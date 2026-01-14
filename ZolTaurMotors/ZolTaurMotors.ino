@@ -62,12 +62,12 @@ uint16_t armLimitDeciDeg = 200;
 StepperMotorPinNames_TMC2208 JawMotorPins = { .directionPin = 5, .stepPin = 6, };
 StepperMotorPinNames_TMC2208 * JawPinsPtr = &JawMotorPins;
 //Jaw Speed
-uint16_t jawSpeed = 50;
+uint16_t jawSpeed = 250;
 //uint16_t jawCurrent = 500;
 //Jaw home angle is how far from home the position target is set to. 
 //The goal is to get close to home without setting off the limit switch
 uint16_t jawHomeAngle = 25;
-uint16_t jawLimitDeciDeg = 200;
+uint16_t jawLimitDeciDeg = 230;
 MicroStepModeEnum_TMC2208 JawStepEnum = MicroStep32_TMC2208;
 
 // Serial Parser

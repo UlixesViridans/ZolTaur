@@ -8,7 +8,9 @@
 
 #include <stdint.h>
 #include "StepperMotorLib_TMC2208.h"
+#include "Stepper_Acceleration_Controller.h"
 #include "Button.h"
+#include "Motor_Position.h"
 
 /*
  * This Library integratesa stepper motor with one or two Limit Switches
@@ -46,9 +48,12 @@ typedef enum: uint8_t
    M_EXTENDING_TMC2208,
    M_EXTENDED_TMC2208,
    M_GOING_TO_TMC2208,
-   M_AT_POSITION_TMC2208
+   M_AT_POSITION_TMC2208,
+   M_ACCELERATE_TMC2208,
+   M_DEACCELERATE_TMC2208
 }MotorStateEnum_TMC2208;
 
+/*
 typedef struct
 {
   //Int that is 0-199 that represents major steps
@@ -56,37 +61,8 @@ typedef struct
   //int that is is 0-255 that represents microsteps that make up a major step
   uint8_t posMinorStep;
 }MotorPosition_TMC2208;
+*/
 
-//Compare Two Motor Positions, 
-// if ptr1 > ptr2 return 1
-// if ptr1 == ptr2 return 0
-// if ptr1 < ptr2 return -1
-int8_t compareMotorPosition_TMC2208( MotorPosition_TMC2208 * pos1, MotorPosition_TMC2208 * pos2 )
-{
-  if( pos1->posMajorStep == pos2->posMajorStep )
-  {
-    if( pos1->posMinorStep == pos2->posMinorStep )
-    {
-      return 0;
-    }
-    else if( pos1->posMinorStep > pos2->posMinorStep )
-    {
-      return 1;
-    }
-    else
-    {
-      return -1;
-    }
-  }
-  else if( pos1->posMajorStep > pos2->posMajorStep )
-  {
-    return 1;
-  }
-  else
-  {
-    return -1;
-  }
-}
 
 //Motor Position Controlling Struct
 typedef struct
@@ -118,6 +94,8 @@ typedef struct
   MotorPosition_TMC2208 extendedLimitRaw;
   //Speed of the motor in decidegrees per second
   uint16_t speedDeciDegrees;
+  //Max speed of the motor (decidegrees) (used for acceleration)
+  uint16_t maxSpeed;
   //Struct that represents the limit switch
   Button HomeLimitSwitch;
   //Struct that represents the motor wrapper
@@ -129,6 +107,8 @@ typedef struct
   DirectionNameEnum_TMC2208 ExtendingDirection;
   DirectionNameEnum_TMC2208 Direction;
   MotorStateEnum_TMC2208 MotorState = M_INIT_TMC2208;
+  MotorStateEnum_TMC2208 LastState;
+  AccelerationController AC;
 }StepperController_TMC2208;
 
 //hacky method for setting the jaw flag
@@ -208,6 +188,7 @@ void stepperControllerInit_TMC2208(
   //Direction Starts Out Heading Towards Home
   Controller->Direction = HomingDirection;
   Controller->speedDeciDegrees = motorSpeed;
+  Controller->maxSpeed = motorSpeed;
 
   //Set Limit angle
   controllerSetLimitAngle_TMC2208( Controller, limitAngleDeciDegrees);
@@ -271,6 +252,7 @@ bool controllerIsHome_TMC2208( StepperController_TMC2208 * Controller )
 void controllerSetSpeed_TMC2208( StepperController_TMC2208 * Controller, uint16_t speedDeciDegrees )
 {
   setSpeed_TMC2208( &( Controller->StepMotor ), speedDeciDegrees );
+  Controller->speedDeciDegrees = speedDeciDegrees;
 }
 
 //Set Direction
@@ -282,7 +264,8 @@ void controllerSetDirection_TMC2208( StepperController_TMC2208 * Controller, Dir
 
 void controllerSetState_TMC2208( StepperController_TMC2208 * Controller, MotorStateEnum_TMC2208 MotorState)
 {
-  //Serial.println("Change state " + String(MotorState));
+  //Save Last State then set next state
+  Controller->LastState = Controller->MotorState;
   Controller->MotorState = MotorState;
 }
 
@@ -493,6 +476,15 @@ void updateMotor_TMC2208(StepperController_TMC2208 * Controller)
         break;
 
       case M_AT_POSITION_TMC2208:
+        //TODO: Add code here if we need it later
+        break;
+
+
+      case M_ACCELERATE_TMC2208:
+
+        break;
+
+      case M_DEACCELERATE_TMC2208:
         break;
     }
   }
@@ -625,6 +617,12 @@ void updateMotor_TMC2208(StepperController_TMC2208 * Controller)
         //at position set state towards extended and proceed to the extending state
         controllerSetDirection_TMC2208( Controller, Controller->ExtendingDirection);
         controllerSetState_TMC2208( Controller, M_EXTENDING_TMC2208);
+        break;
+
+      case M_ACCELERATE_TMC2208:
+        break;
+
+      case M_DEACCELERATE_TMC2208:
         break;
     }
   }
