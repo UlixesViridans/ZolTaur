@@ -51,23 +51,23 @@ StepperMotorPinNames_TMC2208 * ArmPinsPtr = &ArmMotorPins;
 //Arm Microstepping Mode
 MicroStepModeEnum_TMC2208 StepModeEnum = MicroStep32_TMC2208;
 //Arm speed in tenths of a degree per second
-uint16_t armSpeed = 300;
+uint16_t armSpeed = 240;
 //Arm Per phase current
 //uint16_t armCurrent = 500;
 //Arm limit in deci degrees. 300 == 30 degrees
-uint16_t armLimitDeciDeg = 200;
+uint16_t armLimitDeciDeg = 144;
 
 //Declare Jaw Motor
 //Declare Jaw motor pins
 StepperMotorPinNames_TMC2208 JawMotorPins = { .directionPin = 5, .stepPin = 6, };
 StepperMotorPinNames_TMC2208 * JawPinsPtr = &JawMotorPins;
 //Jaw Speed
-uint16_t jawSpeed = 50;
+uint16_t jawSpeed = 400;
 //uint16_t jawCurrent = 500;
 //Jaw home angle is how far from home the position target is set to. 
 //The goal is to get close to home without setting off the limit switch
 uint16_t jawHomeAngle = 25;
-uint16_t jawLimitDeciDeg = 200;
+uint16_t jawLimitDeciDeg = 190;
 MicroStepModeEnum_TMC2208 JawStepEnum = MicroStep32_TMC2208;
 
 // Serial Parser
@@ -94,8 +94,8 @@ StepperController_TMC2208 * JawControlPtr = &JawController;
 //Input Pin numbers
 uint8_t  EmergencyStopBttnPin = 8;
 //uint8_t  ArmHmLimSwPin = 20;
-uint8_t  ArmOpenLimSwPin = 19;
-uint8_t  JawHmLimSwPin = 18;
+uint8_t  ArmOpenLimSwPin = 18;
+uint8_t  JawHmLimSwPin = 19;
 
 
 //uint8_t ledPin = LED_BUILTIN;
